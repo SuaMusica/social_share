@@ -6,15 +6,29 @@
 
 #import "SocialSharePlugin.h"
 #include <objc/runtime.h>
+#import <FBSDKCoreKit/FBSDKCoreKit.h>
+#import <FBSDKShareKit/FBSDKShareKit.h>
 
-@implementation SocialSharePlugin
+@implementation SocialSharePlugin {
+    FlutterMethodChannel* _channel;
+}
 + (void)registerWithRegistrar:(NSObject<FlutterPluginRegistrar>*)registrar {
   FlutterMethodChannel* channel = [FlutterMethodChannel
       methodChannelWithName:@"social_share"
             binaryMessenger:[registrar messenger]];
-  SocialSharePlugin* instance = [[SocialSharePlugin alloc] init];
+  SocialSharePlugin* instance = [[SocialSharePlugin alloc] initWithChannel:channel];
+
   [registrar addMethodCallDelegate:instance channel:channel];
 }
+
+- (instancetype)initWithChannel:(FlutterMethodChannel*)channel {
+    self = [super init];
+    if(self) {
+        _channel = channel;
+    }
+    return self;
+}
+
 
 - (void)handleMethodCall:(FlutterMethodCall*)call result:(FlutterResult)result {
     if([@"shareInstagramStory" isEqualToString:call.method]){
@@ -121,7 +135,24 @@
             } else {
                 result(@"not supported or no facebook installed");
             }
-  }else if([@"copyToClipboard" isEqualToString:call.method]){
+  }else if([@"shareFacebookFeed" isEqualToString:call.method]){
+      NSString *text = call.arguments[@"text"];
+      NSString *url = call.arguments[@"url"];
+           NSURL *urlScheme = [NSURL URLWithString:@"fbapi://"];
+            if ([[UIApplication sharedApplication] canOpenURL:urlScheme]) {
+                 FBSDKShareLinkContent *content = [[FBSDKShareLinkContent alloc] init];
+                 content.contentURL = [NSURL URLWithString:url];
+                 content.quote = text;
+    UIViewController* controller = [UIApplication sharedApplication].delegate.window.rootViewController;
+    [FBSDKShareDialog showFromViewController:controller withContent:content delegate:self];
+
+            } else {
+                result(@"not supported or no facebook installed");
+            }
+  }
+  
+  
+  else if([@"copyToClipboard" isEqualToString:call.method]){
       NSString *content = call.arguments[@"content"];
       UIPasteboard *pasteboard = [UIPasteboard generalPasteboard];
       //assigning content to pasteboard
@@ -346,6 +377,21 @@
           else {
     result(FlutterMethodNotImplemented);
   }
+
+}
+- (void)sharer:(id<FBSDKSharing>)sharer didCompleteWithResults:(NSDictionary *)results{
+    [_channel invokeMethod:@"onSuccess" arguments:nil];
+    NSLog(@"Sharing completed successfully");
+}
+
+- (void)sharerDidCancel:(id<FBSDKSharing>)sharer{
+    [_channel invokeMethod:@"onCancel" arguments:nil];
+    NSLog(@"Sharing cancelled");
+}
+
+- (void)sharer:(id<FBSDKSharing>)sharer didFailWithError:(NSError *)error{
+    [_channel invokeMethod:@"onError" arguments:nil];
+    NSLog(@"%@",error);
 }
 
 @end

@@ -129,6 +129,21 @@ class SocialShare {
     return response;
   }
 
+  static Future<String> shareFacebookFeed({
+    String text = "",
+    String url = "",
+  }) async {
+    Map<String, dynamic> args;
+    args = <String, dynamic>{
+      "text": text,
+      "url": url,
+    };
+
+    final String response =
+        await _channel.invokeMethod('shareFacebookFeed', args);
+    return response;
+  }
+
   static Future<String> shareTwitter(String captionText,
       {List<String> hashtags, String url, String trailingText}) async {
     Map<String, dynamic> args;
@@ -156,7 +171,7 @@ class SocialShare {
         "trailingText": Uri.parse(trailingText).toString()
       };
     }
-    print('hello');
+
     final String version = await _channel.invokeMethod('shareTwitter', args);
     return version;
   }
@@ -228,6 +243,7 @@ class SocialShare {
     final Map apps = await _channel.invokeMethod('checkInstalledApps');
     return apps;
   }
+
   static Future<String> shareTelegram(String content) async {
     final Map<String, dynamic> args = <String, dynamic>{"content": content};
     final String version = await _channel.invokeMethod('shareTelegram', args);
