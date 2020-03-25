@@ -17,7 +17,7 @@
       methodChannelWithName:@"social_share"
             binaryMessenger:[registrar messenger]];
   SocialSharePlugin* instance = [[SocialSharePlugin alloc] initWithChannel:channel];
-
+  [registrar addApplicationDelegate:instance];
   [registrar addMethodCallDelegate:instance channel:channel];
 }
 
@@ -143,9 +143,9 @@
                  FBSDKShareLinkContent *content = [[FBSDKShareLinkContent alloc] init];
                  content.contentURL = [NSURL URLWithString:url];
                  content.quote = text;
-    UIViewController* controller = [UIApplication sharedApplication].delegate.window.rootViewController;
-    [FBSDKShareDialog showFromViewController:controller withContent:content delegate:self];
-
+                 UIViewController* controller = [UIApplication sharedApplication].delegate.window.rootViewController;
+                 [FBSDKShareDialog showFromViewController:controller withContent:content delegate:self];
+                 result(@"shared");
             } else {
                 result(@"not supported or no facebook installed");
             }
@@ -380,17 +380,14 @@
 
 }
 - (void)sharer:(id<FBSDKSharing>)sharer didCompleteWithResults:(NSDictionary *)results{
-    [_channel invokeMethod:@"onSuccess" arguments:nil];
     NSLog(@"Sharing completed successfully");
 }
 
 - (void)sharerDidCancel:(id<FBSDKSharing>)sharer{
-    [_channel invokeMethod:@"onCancel" arguments:nil];
     NSLog(@"Sharing cancelled");
 }
 
 - (void)sharer:(id<FBSDKSharing>)sharer didFailWithError:(NSError *)error{
-    [_channel invokeMethod:@"onError" arguments:nil];
     NSLog(@"%@",error);
 }
 
