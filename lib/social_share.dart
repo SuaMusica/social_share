@@ -237,10 +237,15 @@ class SocialShare {
     String content, {
     String videoPath,
   }) async {
+    if (videoPath != null && Platform.isIOS) {
+      final shared = await shareOptions(content, imagePath: videoPath);
+      return shared ? "True" : "False";
+    }
     final Map<String, dynamic> args = <String, dynamic>{
       "content": content,
       "videoPath": videoPath
     };
+
     final String version = await _channel.invokeMethod('shareWhatsapp', args);
     return version;
   }
