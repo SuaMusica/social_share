@@ -9,7 +9,6 @@ import android.os.Build
 import android.util.Log
 import androidx.annotation.NonNull
 import androidx.annotation.RequiresApi
-import androidx.core.content.ContextCompat.startActivity
 import androidx.core.content.FileProvider
 import io.flutter.plugin.common.MethodCall
 import io.flutter.plugin.common.MethodChannel
@@ -126,10 +125,18 @@ class SocialSharePlugin(private val registrar: Registrar):  MethodCallHandler {
       }else if(call.method == "shareWhatsapp"){
           //shares content on WhatsApp
           val content: String? = call.argument("content")
+          val videoPath: String? = call.argument("videoPath")
+
           val whatsappIntent = Intent(Intent.ACTION_SEND)
-          whatsappIntent.type = "text/plain"
           whatsappIntent.setPackage("com.whatsapp")
+          whatsappIntent.type = "text/plain"
           whatsappIntent.putExtra(Intent.EXTRA_TEXT, content)
+          if(videoPath != null){
+              whatsappIntent.type = "*/*"
+              whatsappIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+              val videoUri = FileProvider.getUriForFile(registrar.activeContext(), registrar.activeContext().applicationContext.packageName + ".com.shekarmudaliyar.social_share", File(videoPath))
+              whatsappIntent.putExtra(Intent.EXTRA_STREAM,videoUri);
+          }
           try {
               registrar.activity().startActivity(whatsappIntent)
               result.success("true")
