@@ -236,14 +236,17 @@ class SocialShare {
   static Future<String> shareWhatsapp(
     String content, {
     String videoPath,
+    String imagePath,
   }) async {
-    if (videoPath != null && Platform.isIOS) {
-      final shared = await shareOptions(content, imagePath: videoPath);
+    if ((videoPath != null || imagePath != null) && Platform.isIOS) {
+      final shared =
+          await shareOptions(content, imagePath: videoPath ?? imagePath);
       return shared ? "True" : "False";
     }
     final Map<String, dynamic> args = <String, dynamic>{
       "content": content,
-      "videoPath": videoPath
+      "videoPath": videoPath,
+      "imagePath": imagePath
     };
 
     final String version = await _channel.invokeMethod('shareWhatsapp', args);

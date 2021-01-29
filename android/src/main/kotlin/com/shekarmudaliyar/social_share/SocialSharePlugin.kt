@@ -126,16 +126,17 @@ class SocialSharePlugin(private val registrar: Registrar):  MethodCallHandler {
           //shares content on WhatsApp
           val content: String? = call.argument("content")
           val videoPath: String? = call.argument("videoPath")
+          val imagePath: String? = call.argument("imagePath")
 
           val whatsappIntent = Intent(Intent.ACTION_SEND)
           whatsappIntent.setPackage("com.whatsapp")
           whatsappIntent.type = "text/plain"
           whatsappIntent.putExtra(Intent.EXTRA_TEXT, content)
-          if(videoPath != null){
-              whatsappIntent.type = "*/*"
+          if(videoPath != null || imagePath != null){
+              whatsappIntent.type = if (videoPath != null) "*/*" else "image/*"
               whatsappIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
-              val videoUri = FileProvider.getUriForFile(registrar.activeContext(), registrar.activeContext().applicationContext.packageName + ".com.shekarmudaliyar.social_share", File(videoPath))
-              whatsappIntent.putExtra(Intent.EXTRA_STREAM,videoUri);
+              val fileUri = FileProvider.getUriForFile(registrar.activeContext(), registrar.activeContext().applicationContext.packageName + ".com.shekarmudaliyar.social_share", File(videoPath ?: imagePath))
+              whatsappIntent.putExtra(Intent.EXTRA_STREAM,fileUri);
           }
           try {
               registrar.activity().startActivity(whatsappIntent)
