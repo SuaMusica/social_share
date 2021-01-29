@@ -246,8 +246,20 @@ class SocialShare {
     final Map<String, dynamic> args = <String, dynamic>{
       "content": content,
       "videoPath": videoPath,
-      "imagePath": imagePath
     };
+
+    if (imagePath != null) {
+      File file = File(imagePath);
+      Uint8List bytes = file.readAsBytesSync();
+      var imagedata = bytes.buffer.asUint8List();
+      final tempDir = await getTemporaryDirectory();
+      String imageName = 'whatsappTemp.png';
+      final Uint8List imageAsList = imagedata;
+      final imageDataPath = '${tempDir.path}/$imageName';
+      file = await File(imageDataPath).create();
+      file.writeAsBytesSync(imageAsList);
+      args["imagePath"] = file.path;
+    }
 
     final String version = await _channel.invokeMethod('shareWhatsapp', args);
     return version;
