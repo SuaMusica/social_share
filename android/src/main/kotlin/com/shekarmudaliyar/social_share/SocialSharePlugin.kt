@@ -118,9 +118,11 @@ class SocialSharePlugin(private val registrar: Registrar):  MethodCallHandler {
       }else if(call.method == "copyToClipboard"){
           //copies content onto the clipboard
           val content: String? = call.argument("content")
-          val clipboard =registrar.context().getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
+          val clipboard = registrar.context().getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
           val clip = ClipData.newPlainText("", content)
-          clipboard.primaryClip = clip
+          clipboard.setPrimaryClip(clip)
+
+        //   clipboard.primaryClip = clip
           result.success(true)
       }else if(call.method == "shareWhatsapp"){
           //shares content on WhatsApp

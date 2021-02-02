@@ -247,7 +247,6 @@ class SocialShare {
       "content": content,
       "videoPath": videoPath,
     };
-
     if (imagePath != null) {
       File file = File(imagePath);
       Uint8List bytes = file.readAsBytesSync();
