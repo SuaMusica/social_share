@@ -27,7 +27,7 @@ class SocialSharePlugin : MethodCallHandler, FlutterPlugin, ActivityAware {
         const val TAG = "SocialShare"
         const val CHANNEL = "social_share"
         private var channel: MethodChannel? = null
-        private lateinit var activity: Activity
+        private var activity: Activity? = null
         private lateinit var context: Context
     }
 
@@ -42,11 +42,12 @@ class SocialSharePlugin : MethodCallHandler, FlutterPlugin, ActivityAware {
         }
     }
     override fun onDetachedFromActivity() {
-        TODO("Not yet implemented")
+        activity = null;
     }
 
     override fun onReattachedToActivityForConfigChanges(binding: ActivityPluginBinding) {
-        TODO("Not yet implemented")
+        activity = binding.activity;
+
     }
 
     override fun onAttachedToActivity(binding: ActivityPluginBinding) {
@@ -54,7 +55,7 @@ class SocialSharePlugin : MethodCallHandler, FlutterPlugin, ActivityAware {
     }
 
     override fun onDetachedFromActivityForConfigChanges() {
-        TODO("Not yet implemented")
+        activity = null;
     }
 
     override fun onDetachedFromEngine(@NonNull binding: FlutterPlugin.FlutterPluginBinding) {
@@ -92,9 +93,9 @@ class SocialSharePlugin : MethodCallHandler, FlutterPlugin, ActivityAware {
             intent.putExtra("bottom_background_color", backgroundBottomColor)
             Log.d("", activity.toString())
             // Instantiate activity and verify it will resolve implicit intent
-            activity.grantUriPermission(
+            activity?.grantUriPermission(
                     "com.instagram.android", stickerImageFile, Intent.FLAG_GRANT_READ_URI_PERMISSION)
-            if (activity.packageManager.resolveActivity(intent, 0) != null) {
+            if (activity?.packageManager?.resolveActivity(intent, 0) != null) {
                 context.startActivity(intent)
                 result.success("success")
             } else {
@@ -119,9 +120,9 @@ class SocialSharePlugin : MethodCallHandler, FlutterPlugin, ActivityAware {
             intent.putExtra("top_background_color", backgroundTopColor)
             intent.putExtra("bottom_background_color", backgroundBottomColor)
             Log.d("", activity.toString())
-            activity.grantUriPermission(
+            activity?.grantUriPermission(
                     "com.facebook.katana", stickerImageFile, Intent.FLAG_GRANT_READ_URI_PERMISSION)
-            if (activity.packageManager.resolveActivity(intent, 0) != null) {
+            if (activity?.packageManager?.resolveActivity(intent, 0) != null) {
                 context.startActivity(intent)
                 result.success("success")
             } else {
@@ -174,7 +175,7 @@ class SocialSharePlugin : MethodCallHandler, FlutterPlugin, ActivityAware {
                 whatsappIntent.putExtra(Intent.EXTRA_STREAM, fileUri);
             }
             try {
-                activity.startActivity(whatsappIntent)
+                activity?.startActivity(whatsappIntent)
                 result.success("true")
             } catch (ex: ActivityNotFoundException) {
                 result.success("false")
@@ -189,7 +190,7 @@ class SocialSharePlugin : MethodCallHandler, FlutterPlugin, ActivityAware {
             intent.data = Uri.parse("sms:")
             intent.putExtra("sms_body", content)
             try {
-                activity.startActivity(intent)
+                activity?.startActivity(intent)
                 result.success("true")
             } catch (ex: ActivityNotFoundException) {
                 result.success("false")
@@ -205,7 +206,7 @@ class SocialSharePlugin : MethodCallHandler, FlutterPlugin, ActivityAware {
             val intent = Intent(Intent.ACTION_VIEW)
             intent.data = Uri.parse(urlScheme)
             try {
-                activity.startActivity(intent)
+                activity?.startActivity(intent)
                 result.success("true")
             } catch (ex: ActivityNotFoundException) {
                 result.success("false")
@@ -219,7 +220,7 @@ class SocialSharePlugin : MethodCallHandler, FlutterPlugin, ActivityAware {
             whatsappIntent.setPackage("org.telegram.messenger")
             whatsappIntent.putExtra(Intent.EXTRA_TEXT, content)
             try {
-                activity.startActivity(whatsappIntent)
+                activity?.startActivity(whatsappIntent)
                 result.success("true")
             } catch (ex: ActivityNotFoundException) {
                 result.success("false")
