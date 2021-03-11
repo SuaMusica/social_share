@@ -2,9 +2,10 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
-import 'dart:async';
+import 'package:path_provider/path_provider.dart';
 import 'package:screenshot/screenshot.dart';
 import 'package:social_share/social_share.dart';
+import 'package:path/path.dart';
 
 void main() => runApp(MyApp());
 
@@ -19,17 +20,6 @@ class _MyAppState extends State<MyApp> {
   @override
   void initState() {
     super.initState();
-    initPlatformState();
-  }
-
-  Future<void> initPlatformState() async {
-    String platformVersion;
-
-    if (!mounted) return;
-
-    setState(() {
-      _platformVersion = platformVersion;
-    });
   }
 
   ScreenshotController screenshotController = ScreenshotController();
@@ -54,11 +44,13 @@ class _MyAppState extends State<MyApp> {
                   'Running on: $_platformVersion\n',
                   textAlign: TextAlign.center,
                 ),
-                RaisedButton(
+                ElevatedButton(
                   onPressed: () async {
-                    File file = await ImagePicker.pickImage(
-                        source: ImageSource.gallery);
-                    SocialShare.shareInstagramStory(file.path, "#ffffff",
+                    final _picker = ImagePicker();
+
+                    PickedFile? file =
+                        await _picker.getImage(source: ImageSource.gallery);
+                    SocialShare.shareInstagramStory(file!.path, "#ffffff",
                             "#000000", "https://deep-link-url")
                         .then((data) {
                       print(data);
@@ -66,40 +58,57 @@ class _MyAppState extends State<MyApp> {
                   },
                   child: Text("Share On Instagram Story"),
                 ),
-                RaisedButton(
+                ElevatedButton(
                   onPressed: () async {
-                    await screenshotController.capture().then((image) async {
-                      SocialShare.shareInstagramStorywithBackground(image.path,
-                              "#ffffff", "#000000", "https://deep-link-url",
-                              backgroundImagePath: image.path)
-                          .then((data) {
-                        print(data);
-                      });
+                    final directory = await getTemporaryDirectory();
+                    final fileName =
+                        DateTime.now().microsecondsSinceEpoch.toString();
+
+                    await screenshotController.captureAndSave(
+                      directory.path,
+                      pixelRatio: 2.0,
+                      fileName: fileName,
+                    );
+                    final imgPath = join(directory.path, "shareImg.png");
+
+                    SocialShare.shareInstagramStorywithBackground(imgPath,
+                            "#ffffff", "#000000", "https://deep-link-url",
+                            backgroundImagePath: imgPath)
+                        .then((data) {
+                      print(data);
                     });
                   },
                   child: Text("Share On Instagram Story with background"),
                 ),
-                RaisedButton(
+                ElevatedButton(
                   onPressed: () async {
-                    await screenshotController.capture().then((image) async {
-                      //facebook appId is mandatory for andorid or else share won't work
-                      Platform.isAndroid
-                          ? SocialShare.shareFacebookStory(image.path,
-                                  "#ffffff", "#000000", "https://google.com",
-                                  appId: "xxxxxxxxxxxxx")
-                              .then((data) {
-                              print(data);
-                            })
-                          : SocialShare.shareFacebookStory(image.path,
-                                  "#ffffff", "#000000", "https://google.com")
-                              .then((data) {
-                              print(data);
-                            });
-                    });
+                    final directory = await getTemporaryDirectory();
+                    final fileName =
+                        DateTime.now().microsecondsSinceEpoch.toString();
+
+                    await screenshotController.captureAndSave(
+                      directory.path,
+                      pixelRatio: 2.0,
+                      fileName: fileName,
+                    );
+                    final imgPath = join(directory.path, "shareImg.png");
+
+                    Platform.isAndroid
+                        ? SocialShare.shareFacebookStory(imgPath, "#ffffff",
+                                "#000000", "https://google.com",
+                                appId: "xxxxxxxxxxxxx")
+                            .then((data) {
+                            print(data);
+                          })
+                        : SocialShare.shareFacebookStory(imgPath, "#ffffff",
+                                "#000000", "https://google.com")
+                            .then((data) {
+                            print(data);
+                          });
                   },
                   child: Text("Share On Facebook Story"),
                 ),
-                RaisedButton(
+                ElevatedButton(
                   onPressed: () async {
                     SocialShare.copyToClipboard(
                       "This is Social Share plugin",
@@ -109,7 +118,7 @@ class _MyAppState extends State<MyApp> {
                   },
                   child: Text("Copy to clipboard"),
                 ),
-                RaisedButton(
+                ElevatedButton(
                   onPressed: () async {
                     SocialShare.shareTwitter(
                             "This is Social Share twitter example",
@@ -122,7 +131,7 @@ class _MyAppState extends State<MyApp> {
                   },
                   child: Text("Share on twitter"),
                 ),
-                RaisedButton(
+                ElevatedButton(
                   onPressed: () async {
                     SocialShare.shareSms("This is Social Share Sms example",
                             url: "\nhttps://google.com/",
@@ -133,19 +142,27 @@ class _MyAppState extends State<MyApp> {
                   },
                   child: Text("Share on Sms"),
                 ),
-                RaisedButton(
+                ElevatedButton(
                   onPressed: () async {
-                    await screenshotController.capture().then((image) async {
-                      SocialShare.shareOptions("Hello world",
-                              imagePath: image.path)
-                          .then((data) {
-                        print(data);
-                      });
+                    final directory = await getTemporaryDirectory();
+                    final fileName =
+                        DateTime.now().microsecondsSinceEpoch.toString();
+
+                    await screenshotController.captureAndSave(
+                      directory.path,
+                      pixelRatio: 2.0,
+                      fileName: fileName,
+                    );
+                    final imgPath = join(directory.path, "shareImg.png");
+
+                    SocialShare.shareOptions("Hello world", imagePath: imgPath)
+                        .then((data) {
+                      print(data);
                     });
                   },
                   child: Text("Share Options"),
                 ),
-                RaisedButton(
+                ElevatedButton(
                   onPressed: () async {
                     SocialShare.shareWhatsapp(
                             "Hello World \n https://google.com")
@@ -155,7 +172,7 @@ class _MyAppState extends State<MyApp> {
                   },
                   child: Text("Share on Whatsapp"),
                 ),
-                RaisedButton(
+                ElevatedButton(
                   onPressed: () async {
                     SocialShare.shareTelegram(
                             "Hello World \n https://google.com")
@@ -165,7 +182,7 @@ class _MyAppState extends State<MyApp> {
                   },
                   child: Text("Share on Telegram"),
                 ),
-                RaisedButton(
+                ElevatedButton(
                   onPressed: () async {
                     SocialShare.checkInstalledAppsForShare().then((data) {
                       print(data.toString());

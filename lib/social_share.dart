@@ -44,11 +44,12 @@ class SocialShare {
   }
 
   static Future<String> shareInstagramStorywithBackground(
-      String imagePath,
-      String backgroundTopColor,
-      String backgroundBottomColor,
-      String attributionURL,
-      {String backgroundImagePath}) async {
+    String imagePath,
+    String backgroundTopColor,
+    String backgroundBottomColor,
+    String attributionURL, {
+    required String backgroundImagePath,
+  }) async {
     Map<String, dynamic> args;
     if (Platform.isIOS) {
       args = <String, dynamic>{
@@ -97,7 +98,7 @@ class SocialShare {
       String backgroundTopColor,
       String backgroundBottomColor,
       String attributionURL,
-      {String appId}) async {
+      {String? appId}) async {
     Map<String, dynamic> args;
     if (Platform.isIOS) {
       args = <String, dynamic>{
@@ -144,8 +145,12 @@ class SocialShare {
     return response;
   }
 
-  static Future<String> shareTwitter(String captionText,
-      {List<String> hashtags, String url, String trailingText}) async {
+  static Future<String> shareTwitter(
+    String captionText, {
+    List<String>? hashtags,
+    required String url,
+    required String trailingText,
+  }) async {
     Map<String, dynamic> args;
     String modifiedUrl;
     if (Platform.isAndroid) {
@@ -177,8 +182,8 @@ class SocialShare {
   }
 
   static Future<String> shareSms(String message,
-      {String url, String trailingText}) async {
-    Map<String, dynamic> args;
+      {String? url, String trailingText = ""}) async {
+    late Map<String, dynamic> args;
     if (Platform.isIOS) {
       if (url == null) {
         args = <String, dynamic>{
@@ -193,7 +198,7 @@ class SocialShare {
       }
     } else if (Platform.isAndroid) {
       args = <String, dynamic>{
-        "message": message + url + trailingText,
+        "message": message + (url ?? "") + trailingText,
       };
     }
     final String version = await _channel.invokeMethod('shareSms', args);
@@ -208,8 +213,10 @@ class SocialShare {
     return response;
   }
 
-  static Future<bool> shareOptions(String contentText,
-      {String imagePath}) async {
+  static Future<bool> shareOptions(
+    String contentText, {
+    String? imagePath,
+  }) async {
     Map<String, dynamic> args;
     if (Platform.isIOS) {
       args = <String, dynamic>{"image": imagePath, "content": contentText};
@@ -235,8 +242,8 @@ class SocialShare {
 
   static Future<String> shareWhatsapp(
     String content, {
-    String videoPath,
-    String imagePath,
+    String? videoPath,
+    String? imagePath,
   }) async {
     if ((videoPath != null || imagePath != null) && Platform.isIOS) {
       final shared =
