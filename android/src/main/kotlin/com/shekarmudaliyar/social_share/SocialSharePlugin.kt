@@ -80,6 +80,7 @@ class SocialSharePlugin : MethodCallHandler, FlutterPlugin, ActivityAware {
             val intent = Intent("com.instagram.share.ADD_TO_STORY")
             intent.type = "image/*"
             intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
             intent.putExtra("interactive_asset_uri", stickerImageFile)
             if (backgroundImage != null) {
                 //check if background image is also provided
@@ -114,6 +115,7 @@ class SocialSharePlugin : MethodCallHandler, FlutterPlugin, ActivityAware {
             val intent = Intent("com.facebook.stories.ADD_TO_STORY")
             intent.type = "image/*"
             intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
             intent.putExtra("com.facebook.platform.extra.APPLICATION_ID", appId)
             intent.putExtra("interactive_asset_uri", stickerImageFile)
             intent.putExtra("content_url", attributionURL)
@@ -135,7 +137,7 @@ class SocialSharePlugin : MethodCallHandler, FlutterPlugin, ActivityAware {
             val image: String? = call.argument("image")
             val intent = Intent()
             intent.action = Intent.ACTION_SEND
-
+            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
             if (image != null) {
                 //check if  image is also provided
                 val imagefile = File(context.cacheDir, image)
@@ -170,6 +172,8 @@ class SocialSharePlugin : MethodCallHandler, FlutterPlugin, ActivityAware {
             if (videoPath != null || imagePath != null) {
                 whatsappIntent.type = if (videoPath != null) "*/*" else "image/*"
                 whatsappIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+                whatsappIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+
                 val fileUri = FileProvider.getUriForFile(context, context.applicationContext.packageName + ".com.shekarmudaliyar.social_share", File(videoPath
                         ?: imagePath))
                 whatsappIntent.putExtra(Intent.EXTRA_STREAM, fileUri);
