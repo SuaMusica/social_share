@@ -78,7 +78,8 @@ class SocialSharePlugin : MethodCallHandler, FlutterPlugin, ActivityAware {
             val stickerImageFile = FileProvider.getUriForFile(context, context.applicationContext.packageName + ".com.shekarmudaliyar.social_share", file)
 
             val intent = Intent("com.instagram.share.ADD_TO_STORY")
-            intent.type = "image/*"
+            intent.putExtra("source_application", context.applicationContext.packageName);
+
             intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
             intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
             intent.putExtra("interactive_asset_uri", stickerImageFile)
@@ -87,15 +88,14 @@ class SocialSharePlugin : MethodCallHandler, FlutterPlugin, ActivityAware {
                 val backfile = File(context.cacheDir, backgroundImage)
                 val backgroundImageFile = FileProvider.getUriForFile(context, context.applicationContext.packageName + ".com.shekarmudaliyar.social_share", backfile)
                 intent.setDataAndType(backgroundImageFile, "image/*")
+                activity?.grantUriPermission("com.instagram.android", backgroundImageFile, Intent.FLAG_GRANT_READ_URI_PERMISSION)
             }
-
             intent.putExtra("content_url", attributionURL)
             intent.putExtra("top_background_color", backgroundTopColor)
             intent.putExtra("bottom_background_color", backgroundBottomColor)
-            Log.d("", activity.toString())
+            Log.d(TAG, activity.toString())
             // Instantiate activity and verify it will resolve implicit intent
-            activity?.grantUriPermission(
-                    "com.instagram.android", stickerImageFile, Intent.FLAG_GRANT_READ_URI_PERMISSION)
+            activity?.grantUriPermission("com.instagram.android", stickerImageFile, Intent.FLAG_GRANT_READ_URI_PERMISSION)
             if (activity?.packageManager?.resolveActivity(intent, 0) != null) {
                 context.startActivity(intent)
                 result.success("success")

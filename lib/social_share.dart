@@ -78,6 +78,7 @@ class SocialShare {
       final backgroundAssetPath = '${tempDir.path}/$backgroundAssetName';
       File backfile = await File(backgroundAssetPath).create();
       backfile.writeAsBytesSync(backgroundAssetAsList);
+      print("Social backfile: ${backfile.path}");
       args = <String, dynamic>{
         "stickerImage": stickerAssetName,
         "backgroundImage": backgroundAssetName,
